@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alkane and Alkene Naming and Structure Practice</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; line-height: 1.5; margin: 0; padding: 1.25rem; color: #1f1f1f; background: #fff; }
+  main { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; }
+  h2 { border-bottom: 2px solid #333; padding-bottom: .3rem; margin-top: 2.5rem; font-size: 1.2rem; }
+  .intro { background: #f4f4f4; border-left: 5px solid #333; padding: .9rem 1.1rem; margin: 1rem 0; }
+  .problem-name { font-size: 1.5rem; font-weight: bold; text-align: center; margin: .8rem 0; }
+  #jsme_container { width: 380px; max-width: 100%; height: 340px; border: 1px solid #999; margin: .6rem auto; }
+  .controls, .nav { text-align: center; margin-top: .6rem; }
+  button { font-size: 1rem; padding: .5rem 1rem; margin: .15rem; border: 1px solid #555; border-radius: 6px; background: #fff; cursor: pointer; }
+  button.primary { background: #1a73e8; color: #fff; }
+  button:disabled { background: #ddd; color: #777; cursor: not-allowed; }
+  button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid #1a73e8; outline-offset: 2px; }
+  .feedback { margin-top: .6rem; font-weight: bold; text-align: center; min-height: 1.5em; }
+  .feedback.ok { color: #1a7f37; } .feedback.bad { color: #b3261e; }
+  .progress { font-weight: bold; margin-top: 1rem; padding: .7rem; background: #f0f0f0; border-radius: 6px; text-align: center; }
+  .struct { width: 340px; max-width: 100%; height: 220px; margin: .6rem auto; border: 1px solid #ccc; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .struct svg { width: 100%; height: 100%; }
+  #name-input { font-size: 1.1rem; padding: .5rem .7rem; width: 100%; max-width: 420px; box-sizing: border-box; border: 1px solid #777; border-radius: 6px; }
+  .answer-row { text-align: center; margin-top: .6rem; }
+  details { max-width: 600px; margin: .5rem auto; }
+  .tips li { margin-bottom: .3rem; }
+  .sr-only { position: absolute; left: -9999px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Alkane and Alkene Naming and Structure Practice</h1>
+  <div class="intro">
+    <p>This page is optional and ungraded. It does not save your progress, so nothing is recorded if you leave or refresh.</p>
+    <ol>
+      <li><strong>Part 1 &mdash; Name to structure:</strong> read the name and draw the skeletal (bond-line) structure.</li>
+      <li><strong>Part 2 &mdash; Structure to name:</strong> look at the skeletal structure and type its name.</li>
+    </ol>
+    <p>Alkanes, cycloalkanes and alkenes are all included. For alkene names, either style is accepted: the newer IUPAC style puts the locant in front of the ending (hex-2-ene) and the older style puts it in front of the whole name (2-hexene). Where a double bond can be E or Z, include it, for example <em>(E)-hex-2-ene</em>.</p>
+    <details>
+      <summary>Tips for the drawing tool</summary>
+      <ul class="tips">
+        <li>Pick the bond tool, then click and drag on the canvas. Each end of a line is a carbon. Click an existing bond with the bond tool to change it to a double bond.</li>
+        <li>Do not draw hydrogens on carbon. They are understood.</li>
+        <li>The checker compares connectivity. It checks E or Z only for the problems whose name includes E or Z.</li>
+      </ul>
+    </details>
+  </div>
+
+  <h2>Part 1: Name to Structure</h2>
+  <div id="p1-num" style="font-weight:bold; text-align:center;"></div>
+  <div class="problem-name" id="p1-name"></div>
+  <div id="jsme_container"></div>
+  <div class="controls">
+    <button id="p1-check" class="primary">Check My Structure</button>
+    <button id="p1-clear">Clear</button>
+    <button id="p1-reveal" style="display:none;">Show Correct Structure</button>
+  </div>
+  <div id="p1-fb" class="feedback" role="status" aria-live="polite"></div>
+  <div class="nav">
+    <button id="p1-prev">&larr; Previous</button>
+    <span id="p1-counter"></span>
+    <button id="p1-next">Next &rarr;</button>
+  </div>
+  <div class="progress" id="p1-progress"></div>
+
+  <h2>Part 2: Structure to Name</h2>
+  <div id="p2-num" style="font-weight:bold; text-align:center;"></div>
+  <div class="struct" id="p2-struct" role="img"></div>
+  <details>
+    <summary id="p2-desc-sum">Text description of this structure</summary>
+    <p id="p2-desc"></p>
+  </details>
+  <div class="answer-row">
+    <label for="name-input" class="sr-only">Name of the compound</label>
+    <input id="name-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type the name, e.g. 2-methylbutane">
+  </div>
+  <div class="controls">
+    <button id="p2-check" class="primary">Check My Name</button>
+    <button id="p2-reveal" style="display:none;">Show Correct Name</button>
+  </div>
+  <div id="p2-fb" class="feedback" role="status" aria-live="polite"></div>
+  <div class="nav">
+    <button id="p2-prev">&larr; Previous</button>
+    <span id="p2-counter"></span>
+    <button id="p2-next">Next &rarr;</button>
+  </div>
+  <div class="progress" id="p2-progress"></div>
+</main>
+
+<script src="rdkit/RDKit_minimal.js"></script>
+<script src="jsme/jsme.nocache.js"></script>
+<script>
+/* Part 1 problems: name shown, student draws. smiles = answer; stereo:true grades E/Z. */
+const P1 = [
+  {name:"hexane", smiles:"CCCCCC"},
+  {name:"2-methylpentane", smiles:"CC(C)CCC"},
+  {name:"3-methylhexane", smiles:"CCC(C)CCC"},
+  {name:"2,3-dimethylpentane", smiles:"CC(C)C(C)CC"},
+  {name:"3-ethyl-2-methylpentane", smiles:"CC(C)C(CC)CC"},
+  {name:"2,2,4-trimethylpentane", smiles:"CC(C)(C)CC(C)C"},
+  {name:"cyclopentane", smiles:"C1CCCC1"},
+  {name:"methylcyclohexane", smiles:"CC1CCCCC1"},
+  {name:"1,2-dimethylcyclopentane", smiles:"CC1CCCC1C"},
+  {name:"1-ethyl-3-methylcyclohexane", smiles:"CCC1CCCC(C)C1"},
+  {name:"1,1-dimethylcyclopropane", smiles:"CC1(C)CC1"},
+  {name:"but-1-ene", smiles:"C=CCC"},
+  {name:"pent-2-ene", smiles:"CC=CCC"},
+  {name:"2-methylbut-2-ene", smiles:"CC=C(C)C"},
+  {name:"3-methylpent-1-ene", smiles:"C=CC(C)CC"},
+  {name:"2,3-dimethylbut-2-ene", smiles:"CC(C)=C(C)C"},
+  {name:"cyclohexene", smiles:"C1=CCCCC1"},
+  {name:"3-methylcyclohexene", smiles:"CC1C=CCCC1"},
+  {name:"(E)-hex-2-ene", smiles:"C/C=C/CCC", stereo:true},
+  {name:"(Z)-pent-2-ene", smiles:"C/C=C\\CC", stereo:true}
+];
+/* Part 2 problems: structure shown, student names. names = accepted answers
+   (newer IUPAC style first, older style after). shown = the preferred name. */
+const P2 = [
+  {smiles:"CC(C)CC", shown:"2-methylbutane", names:["2-methylbutane"], desc:"A four-carbon chain with a one-carbon branch on the second carbon."},
+  {smiles:"CC(C)(C)CC", shown:"2,2-dimethylbutane", names:["2,2-dimethylbutane"], desc:"A four-carbon chain with two one-carbon branches on the second carbon."},
+  {smiles:"CCC(CC)CC", shown:"3-ethylpentane", names:["3-ethylpentane"], desc:"A five-carbon chain with a two-carbon branch on the middle carbon."},
+  {smiles:"CC(C)CC(C)CC", shown:"2,4-dimethylhexane", names:["2,4-dimethylhexane"], desc:"A six-carbon chain with a one-carbon branch on the second carbon and another on the fourth carbon."},
+  {smiles:"CC(C)CC(CC)CC", shown:"4-ethyl-2-methylhexane", names:["4-ethyl-2-methylhexane"], desc:"A six-carbon chain with a one-carbon branch on the second carbon and a two-carbon branch on the fourth carbon."},
+  {smiles:"CCC1CCCC1", shown:"ethylcyclopentane", names:["ethylcyclopentane"], desc:"A five-carbon ring with a two-carbon branch on one ring carbon."},
+  {smiles:"CC1CCCC(C)C1", shown:"1,3-dimethylcyclohexane", names:["1,3-dimethylcyclohexane"], desc:"A six-carbon ring with a one-carbon branch on one ring carbon and another on the carbon two positions away (skipping one ring carbon between them)."},
+  {smiles:"CCC1CCC1C", shown:"1-ethyl-2-methylcyclobutane", names:["1-ethyl-2-methylcyclobutane"], desc:"A four-carbon ring with a two-carbon branch on one ring carbon and a one-carbon branch on the next ring carbon."},
+  {smiles:"C=CCCC", shown:"pent-1-ene", names:["pent-1-ene","1-pentene"], desc:"A five-carbon chain with a double bond between the first and second carbons."},
+  {smiles:"CC(C)=CCC", shown:"2-methylpent-2-ene", names:["2-methylpent-2-ene","2-methyl-2-pentene"], desc:"A five-carbon chain with a double bond between the second and third carbons and a one-carbon branch on the second carbon."},
+  {smiles:"C=CC(C)(C)C", shown:"3,3-dimethylbut-1-ene", names:["3,3-dimethylbut-1-ene","3,3-dimethyl-1-butene"], desc:"A four-carbon chain with a double bond between the first and second carbons and two one-carbon branches on the third carbon."},
+  {smiles:"C1=CCCC1", shown:"cyclopentene", names:["cyclopentene","cyclopent-1-ene"], desc:"A five-carbon ring with one double bond between two ring carbons."},
+  {smiles:"CC1=CCCCC1", shown:"1-methylcyclohexene", names:["1-methylcyclohexene","1-methylcyclohex-1-ene"], desc:"A six-carbon ring with one double bond and a one-carbon branch on one of the two double-bonded carbons."},
+  {smiles:"CC/C=C/CC", shown:"(E)-hex-3-ene", names:["(E)-hex-3-ene","E-hex-3-ene","(E)-3-hexene","E-3-hexene","trans-hex-3-ene","trans-3-hexene"], stereo:true, desc:"A six-carbon chain with a double bond between the third and fourth carbons. The two ethyl groups are on opposite sides of the double bond."},
+  {smiles:"C/C=C\\CCC", shown:"(Z)-hex-2-ene", names:["(Z)-hex-2-ene","Z-hex-2-ene","(Z)-2-hexene","Z-2-hexene","cis-hex-2-ene","cis-2-hexene"], stereo:true, desc:"A six-carbon chain with a double bond between the second and third carbons. The methyl group and the propyl group are on the same side of the double bond."},
+  {smiles:"CC(C)/C=C/C", shown:"(E)-4-methylpent-2-ene", names:["(E)-4-methylpent-2-ene","E-4-methylpent-2-ene","(E)-4-methyl-2-pentene","E-4-methyl-2-pentene","trans-4-methylpent-2-ene","trans-4-methyl-2-pentene"], stereo:true, desc:"A five-carbon chain with a double bond between the second and third carbons and a one-carbon branch on the fourth carbon. The methyl on the second carbon and the isopropyl-end of the chain are on opposite sides of the double bond."}
+];
+
+const norm = s => s.toLowerCase().replace(/[\s\-()\[\]]/g, "");
+const stripStereo = s => s.replace(/[\/\\]/g, "").replace(/@+/g, "");
+
+/* ---------- shared RDKit loader ---------- */
+let RDKitReady = null;
+function getRDKit() {
+  if (!RDKitReady) RDKitReady = window.initRDKitModule({ locateFile: f => "rdkit/" + f });
+  return RDKitReady;
+}
+function canon(RDKit, smi, keepStereo) {
+  const m = RDKit.get_mol(keepStereo ? smi : stripStereo(smi));
+  if (!m || !m.is_valid()) { if (m) m.delete(); return null; }
+  const c = m.get_smiles(); m.delete(); return c;
+}
+
+/* ---------- Part 1 ---------- */
+let jsmeEd = null, i1 = 0, n1 = 0;
+const done1 = new Array(P1.length).fill(false), tries1 = new Array(P1.length).fill(0);
+const $ = id => document.getElementById(id);
+function jsmeOnLoad() {
+  jsmeEd = new JSApplet.JSME("jsme_container", "380px", "340px");
+  renderP1();
+}
+function renderP1() {
+  const p = P1[i1];
+  $("p1-num").textContent = "Problem " + (i1 + 1);
+  $("p1-name").textContent = p.name;
+  $("p1-counter").textContent = "Problem " + (i1 + 1) + " of " + P1.length;
+  $("p1-fb").textContent = ""; $("p1-fb").className = "feedback";
+  $("p1-reveal").style.display = tries1[i1] >= 2 && !done1[i1] ? "inline-block" : "none";
+  $("p1-prev").disabled = i1 === 0; $("p1-next").disabled = i1 === P1.length - 1;
+  if (jsmeEd) jsmeEd.reset();
+  $("p1-progress").textContent = n1 + " / " + P1.length + " correct";
+}
+async function checkP1() {
+  const fb = $("p1-fb");
+  if (!jsmeEd) { fb.textContent = "The drawing tool has not finished loading. Wait a moment and try again."; return; }
+  const user = jsmeEd.smiles();
+  if (!user) { fb.className = "feedback bad"; fb.textContent = "Draw a structure first."; return; }
+  let RDKit;
+  try { RDKit = await getRDKit(); } catch (e) { fb.className = "feedback bad"; fb.textContent = "The checking tool failed to load. Reload the page."; return; }
+  const p = P1[i1];
+  const u = canon(RDKit, user, !!p.stereo), t = canon(RDKit, p.smiles, !!p.stereo);
+  if (u === null) { fb.className = "feedback bad"; fb.textContent = "That does not read as a valid structure. Check your bonds and try again."; tries1[i1]++; }
+  else if (u === t) {
+    fb.className = "feedback ok"; fb.textContent = "Correct!";
+    if (!done1[i1]) { done1[i1] = true; n1++; $("p1-progress").textContent = n1 + " / " + P1.length + " correct"; }
+    $("p1-reveal").style.display = "none"; return;
+  } else {
+    fb.className = "feedback bad";
+    const sameSkeleton = !p.stereo ? false : canon(RDKit, user, false) === canon(RDKit, p.smiles, false);
+    fb.textContent = sameSkeleton
+      ? "The carbon skeleton is right, but the double bond has the wrong E or Z arrangement."
+      : "Not a match yet. Check the parent chain or ring, the position of each branch, and the position of any double bond.";
+    tries1[i1]++;
+  }
+  if (tries1[i1] >= 2 && !done1[i1]) $("p1-reveal").style.display = "inline-block";
+}
+$("p1-check").onclick = checkP1;
+$("p1-clear").onclick = () => { if (jsmeEd) jsmeEd.reset(); $("p1-fb").textContent = ""; };
+$("p1-reveal").onclick = () => { jsmeEd.readGenericMolecularInput(P1[i1].smiles); $("p1-fb").className = "feedback"; $("p1-fb").textContent = "Here is a correct structure. Study it, then move on."; };
+$("p1-prev").onclick = () => { if (i1 > 0) { i1--; renderP1(); } };
+$("p1-next").onclick = () => { if (i1 < P1.length - 1) { i1++; renderP1(); } };
+
+/* ---------- Part 2 ---------- */
+let i2 = 0, n2 = 0;
+const done2 = new Array(P2.length).fill(false), tries2 = new Array(P2.length).fill(0);
+async function renderP2() {
+  const p = P2[i2];
+  $("p2-num").textContent = "Problem " + (i2 + 1);
+  $("p2-counter").textContent = "Problem " + (i2 + 1) + " of " + P2.length;
+  $("p2-fb").textContent = ""; $("p2-fb").className = "feedback";
+  $("name-input").value = "";
+  $("p2-reveal").style.display = tries2[i2] >= 2 && !done2[i2] ? "inline-block" : "none";
+  $("p2-prev").disabled = i2 === 0; $("p2-next").disabled = i2 === P2.length - 1;
+  $("p2-struct").setAttribute("aria-label", "Skeletal structure for problem " + (i2 + 1) + ". Open the text description below.");
+  $("p2-desc").textContent = p.desc;
+  $("p2-progress").textContent = n2 + " / " + P2.length + " correct";
+  try {
+    const RDKit = await getRDKit();
+    const m = RDKit.get_mol(p.smiles);
+    $("p2-struct").innerHTML = m.get_svg_with_highlights(JSON.stringify({width:340, height:220, bondLineWidth:2, addStereoAnnotation:false, clearBackground:false, backgroundColour:[1,1,1,1], legend:""}));
+    const svg = $("p2-struct").querySelector("svg"); if (svg) { svg.setAttribute("aria-hidden", "true"); svg.setAttribute("viewBox", "0 0 340 220"); }
+    m.delete();
+  } catch (e) { $("p2-struct").textContent = "The structure could not be drawn. Reload the page."; }
+}
+function checkP2() {
+  const fb = $("p2-fb"), raw = $("name-input").value.trim();
+  if (!raw) { fb.className = "feedback bad"; fb.textContent = "Type a name first."; return; }
+  const p = P2[i2];
+  if (p.names.some(n => norm(n) === norm(raw))) {
+    fb.className = "feedback ok"; fb.textContent = "Correct! " + p.shown;
+    if (!done2[i2]) { done2[i2] = true; n2++; $("p2-progress").textContent = n2 + " / " + P2.length + " correct"; }
+    $("p2-reveal").style.display = "none"; return;
+  }
+  fb.className = "feedback bad";
+  fb.textContent = p.stereo && !/(^|[^a-z])(e|z|cis|trans)([^a-z]|$)|^[ez]|^cis|^trans/.test(raw.toLowerCase())
+    ? "Check the arrangement around the double bond. Does the name need E or Z?"
+    : "Not a match yet. Check the longest chain or ring, number from the end that gives the lowest locants, and list branches alphabetically.";
+  tries2[i2]++;
+  if (tries2[i2] >= 2) $("p2-reveal").style.display = "inline-block";
+}
+$("p2-check").onclick = checkP2;
+$("name-input").addEventListener("keydown", e => { if (e.key === "Enter") checkP2(); });
+$("p2-reveal").onclick = () => { $("p2-fb").className = "feedback"; $("p2-fb").textContent = "A correct name: " + P2[i2].shown; };
+$("p2-prev").onclick = () => { if (i2 > 0) { i2--; renderP2(); } };
+$("p2-next").onclick = () => { if (i2 < P2.length - 1) { i2++; renderP2(); } };
+renderP2();
+</script>
+</body>
+</html>
